@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction - Sales Insight System</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-container">
+            <div class="logo"><h1>Sales Insight System</h1></div>
+
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="{% url 'reports' %}">Reports</a></li>
+                <li><a href="{% url 'prediction' %}">Prediction</a></li>
+
+                {% if user.is_authenticated %}
+                    {% if user.is_staff or user.is_superuser %}
+                        <li><a href="/admin/">Admin</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>Sales Prediction</h1>
+        <p>Enter input values to estimate sales revenue</p>
+    </div>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>Prediction Form</h2>
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Predict Sales</button>
+            </form>
+        </div>
+
+        {% if prediction %}
+        <div class="card">
+            <h2>Prediction Result</h2>
+            <p>Predicted Sales Revenue: <strong>₹{{ prediction }}</strong></p>
+        </div>
+        {% endif %}
+
+        <div class="card">
+            <h2>How Prediction Works</h2>
+            <p>
+                The system uses your entered quantity and price values
+                and applies the trained prediction logic from the backend
+                to estimate expected sales revenue.
+            </p>
+        </div>
+
+    </div>
+
+</body>
+</html>

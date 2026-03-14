@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reports - Sales Insight System</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-container">
+            <div class="logo"><h1>Sales Insight System</h1></div>
+
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}"><b>Home</b></a></li>
+                <li><a href="{% url 'reports' %}"><b>Reports</b></a></li>
+                <li><a href="{% url 'prediction' %}"><b>Prediction</b></a></li>
+
+                {% if user.is_authenticated %}
+                    {% if user.is_staff or user.is_superuser %}
+                        <li><a href="{% url 'admin_dashboard' %}"><b>Admin</b></a></li>
+                    {% endif %}
+                    <li><a href="{% url 'logout' %}"><b>Logout</b></a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}"><b>Login</b></a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>Sales Reports & Analysis</h1>
+        <p>Detailed business performance report with tabular data and insights</p>
+    </div>
+
+    <div class="container">
+
+        <!-- Summary Cards -->
+        <div class="card">
+            <h2>Report Summary</h2>
+            <p><strong>Total Sales:</strong> ₹{{ total_sales }}</p>
+            <p><strong>Total Orders:</strong> {{ total_orders }}</p>
+            <p><strong>Average Price:</strong> ₹{{ avg_price }}</p>
+        </div>
+
+        <!-- Chart -->
+        <div class="card">
+            <h2>Sales Report Graph</h2>
+            <img src="{{ chart_path }}" alt="Sales Chart" style="max-width:100%; border-radius:10px;">
+        </div>
+
+        <!-- Detailed Table -->
+        <div class="card">
+            <h2>Detailed Sales Report Table</h2>
+
+            {% if table_data %}
+            <div style="overflow-x:auto;">
+                <table border="1" cellpadding="10" cellspacing="0" style="width:100%; border-collapse: collapse; background:white;">
+                    <thead style="background:#222; color:white;">
+                        <tr>
+                            {% for key, value in table_data.0.items %}
+                                <th>{{ key }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in table_data %}
+                        <tr>
+                            {% for key, value in row.items %}
+                                <td>{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <p>No report data available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Insight Section -->
+        <div class="card">
+            <h2>Business Insight Summary</h2>
+            <p>
+                This reports page provides a more detailed breakdown of sales records.
+                Unlike the dashboard, this page focuses on structured reporting and raw
+                sales data analysis for business review.
+            </p>
+        </div>
+
+    </div>
+
+</body>
+</html>

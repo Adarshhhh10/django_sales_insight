@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-container">
+            <div class="logo"><h1>Sales Insight System</h1></div>
+
+            <ul class="nav-links">
+                {% comment %} <li><a href="/"><b>Home</b></a></li> {% endcomment %}
+                <li><a href="{% url 'home' %}"><b>Home</b></a></li>
+                <li><a href="{% url 'reports' %}"><b>Reports</b></a></li>
+                <li><a href="{% url 'prediction' %}"><b>Prediction</b></a></li>
+
+                {% if user.is_authenticated %}
+                    {% if user.is_staff or user.is_superuser %}
+                        <li><a href="{% url 'admin_dashboard' %}"><b>Admin</b></a></li>
+                    {% endif %}
+                    <li><a href="{% url 'logout' %}"><b>Logout</b></a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}"><b>Login</b></a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>AI-Powered Sales Insight Dashboard</h1>
+        <p>Track trends, analyze performance, and view predictive business insights</p>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Sales Summary</h2>
+            <p><strong>Total Sales:</strong> ₹{{ total_sales }}</p>
+            <p><strong>Total Orders:</strong> {{ total_orders }}</p>
+            <p><strong>Average Price:</strong> ₹{{ avg_price }}</p>
+        </div>
+
+        <div class="card">
+            <h2>Monthly Sales Graph</h2>
+            <img src="{{ chart_path }}" alt="Sales Chart" style="max-width:100%; border-radius:10px;">
+        </div>
+
+        <div class="card">
+            <h2>Top Selling Product</h2>
+            <p class="highlight-text">{{ top_product }}</p>
+        </div>
+
+        <div class="card">
+            <h2>Revenue by Region</h2>
+
+            {% for region, revenue in region_data.items %}
+                <div class="graph-row">
+                    <div class="graph-label">{{ region }}</div>
+
+                    <div class="graph-bar-container">
+                        <div class="graph-bar" style="width: {% widthratio revenue max_region_value 100 %}%;">
+                            ₹{{ revenue }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="card">
+            <h2>Monthly Revenue Trend</h2>
+
+            {% for month, revenue in monthly_data.items %}
+                <div class="graph-row">
+                    <div class="graph-label">{{ month }}</div>
+
+                    <div class="graph-bar-container">
+                        <div class="month-bar" style="width: {% widthratio revenue max_month_value 100 %}%;">
+                            ₹{{ revenue }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="card">
+            <h2>Business Summary</h2>
+            <p>
+                This dashboard displays the top-selling product, region-wise revenue performance,
+                and monthly revenue trends. These visual insights help business users understand
+                which areas are performing best and identify overall sales growth patterns.
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>
+
+
+
+
+

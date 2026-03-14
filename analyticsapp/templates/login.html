@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Sales Insight System</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="nav-container">
+            <div class="logo"><h1>Sales Insight System</h1></div>
+        </div>
+    </div>
+
+    <div class="form-page">
+        <div class="card login-card">
+            <h2>Login</h2>
+
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Login</button>
+            </form>
+
+            <p class="small-text">
+                Use your Django user account to access Reports and Prediction.
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>
