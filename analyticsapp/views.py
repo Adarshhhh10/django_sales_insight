@@ -8,7 +8,7 @@ from django.conf import settings
 
 
 def load_sales_data():
-    file_path = os.path.join(settings.BASE_DIR.parent, 'dataset', 'sales_data.csv')
+    file_path = os.path.join(settings.BASE_DIR, 'dataset', 'sales_data.csv')
     try:
         df = pd.read_csv(file_path)
         return df
@@ -19,7 +19,7 @@ def load_sales_data():
 
 # HOME / DASHBOARD PAGE
 def dashboard_view(request):
-    file_path = os.path.join(settings.BASE_DIR.parent, 'dataset', 'sales_data.csv')
+    file_path = os.path.join(settings.BASE_DIR, 'dataset', 'sales_data.csv')
 
     total_sales = 0
     total_orders = 0
@@ -106,7 +106,7 @@ def dashboard_view(request):
 
 # REPORTS PAGE
 def reports_view(request):
-    file_path = os.path.join(settings.BASE_DIR.parent, 'dataset', 'sales_data.csv')
+    file_path = os.path.join(settings.BASE_DIR, 'dataset', 'sales_data.csv')
 
     total_sales = 0
     total_orders = 0
