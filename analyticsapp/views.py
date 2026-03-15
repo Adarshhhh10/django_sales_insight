@@ -5,6 +5,9 @@ from .forms import PredictionForm
 import pandas as pd
 import os
 from django.conf import settings
+import matplotlib
+matplotlib.use('Agg')  # ensures matplotlib works without GUI
+import matplotlib.pyplot as plt
 
 
 def load_sales_data():
@@ -87,6 +90,23 @@ def dashboard_view(request):
 
                 if monthly_data:
                     max_month_value = max(monthly_data.values())
+
+                    # ---------------- CREATE CHART ---------------- #
+                    charts_dir = os.path.join(settings.BASE_DIR, 'static', 'charts')
+                    os.makedirs(charts_dir, exist_ok=True)
+
+                    chart_file = os.path.join(charts_dir, 'monthly_chart.png')
+
+                    plt.figure(figsize=(8, 4))
+                    plt.plot(list(monthly_data.keys()), list(monthly_data.values()), marker='o')
+                    plt.title('Monthly Sales Trend')
+                    plt.xlabel('Month')
+                    plt.ylabel('Revenue')
+                    plt.grid(True)
+                    plt.tight_layout()
+                    plt.savefig(chart_file)
+                    plt.close()
+                    # --------------------------------------------- #
 
     except Exception as e:
         print("Dashboard error:", e)
