@@ -1,0 +1,93 @@
+{
+  "info": {
+    "_postman_id": "d3d1bcd9-4c97-430d-a4e9-b5640e12723a",
+    "name": "Django Sales Insight API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53197750",
+    "_collection_link": "https://go.postman.co/collection/53197750-d3d1bcd9-4c97-430d-a4e9-b5640e12723a?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Sales API",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/sales/",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "sales",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Reports API",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/reports/",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "reports",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Predict API",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/predict/?quantity=10&price=500",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "predict",
+            ""
+          ],
+          "query": [
+            {
+              "key": "quantity",
+              "value": "10"
+            },
+            {
+              "key": "price",
+              "value": "500"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
