@@ -14,29 +14,14 @@ from pathlib import Path
 import os
 import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-*)r-+hzq%8*87aqg2cop(e@vimtm4w4yzla741loqc3!)vq#uj')
 
-# SECURITY
-SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-key')
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-DEBUG = os.environ.get("DEBUG", "False") == "True"
+ALLOWED_HOSTS = ['*']
 
-RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS = [RENDER_EXTERNAL_HOSTNAME, "localhost", "127.0.0.1"]
-else:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
-
-
-# CSRF trusted origins for Render
-CSRF_TRUSTED_ORIGINS = []
-if RENDER_EXTERNAL_HOSTNAME:
-    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
-
-
-# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -49,7 +34,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',   # Added for Render static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,7 +48,7 @@ ROOT_URLCONF = 'salesproject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],   # if you have a project-level templates folder
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,23 +62,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'salesproject.wsgi.application'
 
+DATABASES = {
+    'default': dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600
+    )
+}
 
-# Database
-# SQLite locally, PostgreSQL on Render
-if os.environ.get("DATABASE_URL"):
-    DATABASES = {
-        "default": dj_database_url.parse(os.environ.get("DATABASE_URL"))
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-
-
-# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -109,36 +84,23 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JS, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
-# Media files (for uploaded CSVs etc.)
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-
-# Login URL
-LOGIN_URL = '/login/'
-
-
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = '/login/'
 
 
 
