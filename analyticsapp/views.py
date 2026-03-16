@@ -87,7 +87,6 @@ def dashboard_view(request):
                 if monthly_data:
                     max_month_value = max(monthly_data.values())
 
-                    # Create chart in memory instead of static file
                     plt.figure(figsize=(8, 4))
                     plt.plot(list(monthly_data.keys()), list(monthly_data.values()), marker='o')
                     plt.title('Monthly Sales Trend')
@@ -99,7 +98,9 @@ def dashboard_view(request):
                     buffer = io.BytesIO()
                     plt.savefig(buffer, format='png')
                     buffer.seek(0)
+
                     chart = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
                     buffer.close()
                     plt.close()
 
@@ -127,23 +128,46 @@ def reports_view(request):
     total_orders = 0
     avg_price = 0
     table_data = []
+    chart = None
 
     try:
         df = pd.read_csv(file_path)
 
-        if 'Quantity' in df.columns and 'Price' in df.columns:
-            df['Sales'] = df['Quantity'] * df['Price']
-            total_sales = df['Sales'].sum()
-            total_orders = len(df)
-            avg_price = df['Price'].mean()
-            table_data = df.head(15).to_dict(orient='records')
+        if 'quantity' in df.columns and 'price' in df.columns:
 
-        elif 'quantity' in df.columns and 'price' in df.columns:
             df['Sales'] = df['quantity'] * df['price']
+
             total_sales = df['Sales'].sum()
             total_orders = len(df)
             avg_price = df['price'].mean()
+
             table_data = df.head(15).to_dict(orient='records')
+
+            if 'date' in df.columns:
+
+                df['date'] = pd.to_datetime(df['date'], errors='coerce')
+                df = df.dropna(subset=['date'])
+
+                df['month'] = df['date'].dt.strftime('%b')
+
+                month_sales = df.groupby('month')['Sales'].sum()
+
+                plt.figure(figsize=(8, 4))
+                plt.plot(month_sales.index, month_sales.values, marker='o')
+                plt.title("Monthly Sales Report")
+                plt.xlabel("Month")
+                plt.ylabel("Revenue")
+                plt.grid(True)
+                plt.tight_layout()
+
+                buffer = io.BytesIO()
+                plt.savefig(buffer, format='png')
+                buffer.seek(0)
+
+                chart = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+                buffer.close()
+                plt.close()
 
     except Exception as e:
         print("Reports error:", e)
@@ -153,6 +177,7 @@ def reports_view(request):
         'total_orders': total_orders,
         'avg_price': round(avg_price, 2),
         'table_data': table_data,
+        'chart': chart
     })
 
 
@@ -182,7 +207,7 @@ def admin_dashboard(request):
     return render(request, 'analyticsapp/admin_dashboard.html')
 
 
-# ---------------- API ENDPOINTS ---------------- #
+# API ENDPOINTS
 
 def sales_api(request):
     data = {
