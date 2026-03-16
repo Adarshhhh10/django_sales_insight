@@ -6,8 +6,10 @@ import pandas as pd
 import os
 from django.conf import settings
 import matplotlib
-matplotlib.use('Agg')  # ensures matplotlib works without GUI
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import io
+import base64
 
 
 def load_sales_data():
@@ -27,7 +29,6 @@ def dashboard_view(request):
     total_sales = 0
     total_orders = 0
     avg_price = 0
-    chart_path = '/static/charts/monthly_chart.png'
 
     top_product = "N/A"
     region_data = {}
@@ -35,50 +36,45 @@ def dashboard_view(request):
     max_region_value = 1
     max_month_value = 1
 
+    chart = None
+
     try:
         df = pd.read_csv(file_path)
 
-        # Your CSV uses lowercase columns
         qty_col = 'quantity'
         price_col = 'price'
         product_col = 'product'
         region_col = 'region'
         date_col = 'date'
 
-        # Make sure required columns exist
         if qty_col in df.columns and price_col in df.columns:
-            # Create Sales column
+
             df['Sales'] = df[qty_col] * df[price_col]
 
-            # Summary values
             total_sales = df['Sales'].sum()
             total_orders = len(df)
             avg_price = df[price_col].mean()
 
-            # Top selling product
             if product_col in df.columns:
                 product_sales = df.groupby(product_col)['Sales'].sum()
                 if not product_sales.empty:
                     top_product = product_sales.idxmax()
 
-            # Revenue by region
             if region_col in df.columns:
                 region_sales = df.groupby(region_col)['Sales'].sum()
                 region_data = region_sales.to_dict()
                 if region_data:
                     max_region_value = max(region_data.values())
 
-            # Monthly revenue trend from date column
             if date_col in df.columns:
+
                 df[date_col] = pd.to_datetime(df[date_col], errors='coerce')
                 df = df.dropna(subset=[date_col])
 
-                # Extract month names like Jan, Feb
                 df['month_name'] = df[date_col].dt.strftime('%b')
 
                 month_sales = df.groupby('month_name')['Sales'].sum()
 
-                # Keep month order correct
                 month_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -91,12 +87,7 @@ def dashboard_view(request):
                 if monthly_data:
                     max_month_value = max(monthly_data.values())
 
-                    # ---------------- CREATE CHART ---------------- #
-                    charts_dir = os.path.join(settings.BASE_DIR, 'static', 'charts')
-                    os.makedirs(charts_dir, exist_ok=True)
-
-                    chart_file = os.path.join(charts_dir, 'monthly_chart.png')
-
+                    # Create chart in memory instead of static file
                     plt.figure(figsize=(8, 4))
                     plt.plot(list(monthly_data.keys()), list(monthly_data.values()), marker='o')
                     plt.title('Monthly Sales Trend')
@@ -104,9 +95,13 @@ def dashboard_view(request):
                     plt.ylabel('Revenue')
                     plt.grid(True)
                     plt.tight_layout()
-                    plt.savefig(chart_file)
+
+                    buffer = io.BytesIO()
+                    plt.savefig(buffer, format='png')
+                    buffer.seek(0)
+                    chart = base64.b64encode(buffer.getvalue()).decode('utf-8')
+                    buffer.close()
                     plt.close()
-                    # --------------------------------------------- #
 
     except Exception as e:
         print("Dashboard error:", e)
@@ -115,7 +110,7 @@ def dashboard_view(request):
         'total_sales': round(total_sales, 2),
         'total_orders': total_orders,
         'avg_price': round(avg_price, 2),
-        'chart_path': chart_path,
+        'chart': chart,
         'top_product': top_product,
         'region_data': region_data,
         'max_region_value': max_region_value,
@@ -131,7 +126,6 @@ def reports_view(request):
     total_sales = 0
     total_orders = 0
     avg_price = 0
-    chart_path = '/static/charts/monthly_chart.png'
     table_data = []
 
     try:
@@ -158,7 +152,6 @@ def reports_view(request):
         'total_sales': round(total_sales, 2),
         'total_orders': total_orders,
         'avg_price': round(avg_price, 2),
-        'chart_path': chart_path,
         'table_data': table_data,
     })
 
@@ -182,7 +175,7 @@ def prediction_view(request):
     })
 
 
-# Custom Admin Dashboard (only for staff/superuser)
+# Custom Admin Dashboard
 @login_required
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def admin_dashboard(request):
